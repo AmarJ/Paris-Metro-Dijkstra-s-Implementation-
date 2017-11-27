@@ -17,4 +17,33 @@ public class Station {
 
         this.routes.add(route);
     }
+
+    public Route getRoute(int index){
+        return this.routes.get(index);
+    }
+
+    public int getRouteCount(){
+        return this.routes.size();
+    }
+
+    public String getStationName(){
+        return this.stationName;
+    }
+
+    public String toString(){
+            return "Station: "+this.stationName;
+    }
+
+    public boolean equals(Object other){
+        if (!(other instanceof Station)){
+            return false;
+        }
+
+        Station otherStation = (Station) other;
+        return this.stationName.equals(otherStation.stationName);
+    }
+
+    public ArrayList<Route> getRoutes() {
+        return new ArrayList<Route>(routes); //return new copy
+    }
 }
