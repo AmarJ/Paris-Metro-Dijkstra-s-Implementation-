@@ -4,9 +4,11 @@ public class Station {
 
     private ArrayList<Route> routes;
     private String stationName;
+    private int stationNumber;
 
-    public Station(String station){
+    public Station(String station, int stationNumber){
         this.stationName = station;
+        this.stationNumber = stationNumber;
         this.routes = new ArrayList<Route>();
     }
 
@@ -28,6 +30,10 @@ public class Station {
 
     public String getStationName(){
         return this.stationName;
+    }
+
+    public int getStationNumber(){
+        return this.stationNumber;
     }
 
     public String toString(){
