@@ -36,6 +36,10 @@ public class Station {
         return this.stationNumber;
     }
 
+    public int hashCode(){
+        return this.stationName.hashCode();
+    }
+
     public String toString(){
             return "Station: "+this.stationName;
     }
