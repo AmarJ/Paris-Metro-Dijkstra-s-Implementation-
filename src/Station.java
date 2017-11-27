@@ -7,7 +7,7 @@ public class Station {
 
     public Station(String station){
         this.stationName = station;
-        this.routes = new ArrayList<Route>;
+        this.routes = new ArrayList<Route>();
     }
 
     public void addRoute(Route route){
