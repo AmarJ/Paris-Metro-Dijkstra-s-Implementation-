@@ -11,8 +11,8 @@ public class Route implements Comparable<Route> {
     }
 
     public Route(Station a, Station b, int weight){
-        this.a = a.getStationNumber() < b.getStationNumber() ? a : b; //compares which station comes first
-        this.b = (this.a == a) ? b : a;
+        this.a = a;
+        this.b = b;
         this.weight = weight;
     }
 
@@ -26,6 +26,10 @@ public class Route implements Comparable<Route> {
 
     public int getWeight(){
         return this.weight;
+    }
+
+    public int hashCode(){
+        return (a.getStationName() + b.getStationName()).hashCode(); //unique hashcode for route
     }
 
     //compareTo method for two routes
