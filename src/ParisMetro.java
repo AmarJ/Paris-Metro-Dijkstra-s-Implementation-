@@ -35,7 +35,11 @@ public class ParisMetro {
     }
 
     public boolean addStation(Station station){
-
+        if (stations.containsKey(station.hashCode())){
+            return false;
+        }
+        stations.put(station.getStationNumber(), station);
+	    return true;
     }
 
     public Station getStation(int stationNumber){
