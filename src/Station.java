@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class Station {
 
     private ArrayList<Route> routes;
+    private int distance;
     private String stationName;
     private int stationNumber;
 
@@ -10,6 +11,7 @@ public class Station {
         this.stationName = station;
         this.stationNumber = stationNumber;
         this.routes = new ArrayList<Route>();
+        this.distance = Integer.MAX_VALUE;
     }
 
     public void addRoute(Route route){
