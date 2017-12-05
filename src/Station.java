@@ -1,61 +1,47 @@
-import java.util.ArrayList;
-
 public class Station {
+    final private int stationNumber;
+    final private String stationName;
 
-    private ArrayList<Route> routes;
-    private int distance;
-    private String stationName;
-    private int stationNumber;
-
-    public Station(String station, int stationNumber){
-        this.stationName = station;
+    public Station(int stationNumber, String stationName){
         this.stationNumber = stationNumber;
-        this.routes = new ArrayList<Route>();
-        this.distance = Integer.MAX_VALUE;
+        this.stationName = stationName;
     }
 
-    public void addRoute(Route route){
-        if (this.routes.contains(route)){
-            return;
-        }
-
-        this.routes.add(route);
+    public int getStationNumber() {
+        return stationNumber;
     }
 
-    public Route getRoute(int index){
-        return this.routes.get(index);
-    }
-
-    public int getRouteCount(){
-        return this.routes.size();
-    }
-
-    public String getStationName(){
-        return this.stationName;
-    }
-
-    public int getStationNumber(){
-        return this.stationNumber;
+    public String getStationName() {
+        return stationName;
     }
 
     public int hashCode(){
-        return this.stationName.hashCode();
+        return this.stationNumber;
     }
 
-    public String toString(){
-            return "Station: "+this.stationName;
-    }
+    public boolean equals(Object o){
+        if (this == o){
+            return true;
+        }
 
-    public boolean equals(Object other){
-        if (!(other instanceof Station)){
+        if (o == null){
             return false;
         }
 
-        Station otherStation = (Station) other;
-        return this.stationName.equals(otherStation.stationName);
+        if (this.getClass() != o.getClass()){
+            return false;
+        }
+
+        Station other = (Station) o;
+
+        if (this.stationNumber == other.stationNumber){
+            return true;
+        }
+        return false;
     }
 
-    public ArrayList<Route> getRoutes() {
-        return new ArrayList<Route>(routes); //return new copy
+    public String toString(){
+        return this.stationName;
     }
+
 }
