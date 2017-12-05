@@ -1,71 +1,155 @@
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ParisMetro {
 
-    private List<Station> stations;
-    private List<Route> routes;
-    private int stationsSize;
-    private int routesSize;
+    List<Station> nodes;
+    List<Route> edges;
+    Set<Station> settled;
+    Set<Station> unSettled;
+    Map<Station, Station> predecessors;
+    Map<Station, Integer> distance;
 
     public ParisMetro(){
-        this.stations = new ArrayList<Station>();
-        this.routes = new ArrayList<Route>();
-        this.stationsSize = 0;
-        this.routesSize = 0;
+        Graph graph = new Graph("../data/metro.txt");
+
+        this.nodes = graph.getStations();
+        this.edges = graph.getRoutes();
     }
 
-    public void readMetro(String fileName){
+    public LinkedList<Integer> findMostEfficientPath(int sourceNumber, int destinationNumber){
+        Station source = nodes.get(sourceNumber);
+        Station destination = nodes.get(destinationNumber);
 
-        List<String> list;
-        String[] lines = null;
+        LinkedList<Integer> path = new LinkedList<Integer>();
 
-        //metro file to array of lines
-        try {
-            list = Files.readAllLines(Paths.get(fileName));
-            lines = list.toArray(new String[list.size()]);
-        } catch (FileNotFoundException e) {
-            System.out.println("Unable to open file.");
-        } catch (IOException e) {
-            System.out.println("Error reading file.");
+        dijkstraAlgorithm(source);
+
+        Station current = destination;
+
+        if (predecessors.get(current) == null){
+            return null;
+        }
+        path.add(current.getStationNumber());
+        while (predecessors.get(current) != null){
+            current = predecessors.get(current);
+            path.add(current.getStationNumber());
+        }
+        Collections.reverse(path);
+        return path;
+    }
+
+    public LinkedList<Integer> findMostEfficientPath(int sourceNumber, int destinationNumber, int omitStation){
+
+
+        Station source = nodes.get(sourceNumber);
+        Station destination = nodes.get(destinationNumber);
+
+        LinkedList<Integer> path = new LinkedList<Integer>();
+
+        dijkstraAlgorithm(source);
+
+        Station current = destination;
+
+        if (predecessors.get(current) == null){
+            return null;
+        }
+        path.add(current.getStationNumber());
+        while (predecessors.get(current) != null){
+            current = predecessors.get(current);
+            path.add(current.getStationNumber());
+        }
+        Collections.reverse(path);
+        return path;
+    }
+
+    private void dijkstraAlgorithm(Station source){
+        settled = new HashSet<Station>();
+        unSettled = new HashSet<Station>();
+        predecessors = new HashMap<Station, Station>();
+        distance = new HashMap<Station, Integer>();
+
+        distance.put(source, 0);
+        unSettled.add(source);
+        while (unSettled.size() > 0){
+            Station node = helperGetMin(unSettled);
+            settled.add(node);
+            unSettled.remove(node);
+            helperFindMinDistance(node);
         }
 
-        String[] tmp = lines[0].split(" ");
+    }
 
-        this.stationsSize = Integer.parseInt(tmp[0].replaceAll("[^0-9]+",""));
-        this.routesSize = Integer.parseInt(tmp[1].replaceAll("[^0-9]+",""));
+    private void helperFindMinDistance(Station node) {
+        List<Station> adjNodes = helperGetNeighbors(node);
+        for (Station currentTarget : adjNodes) {
+            if (helperGetShortestDistance(currentTarget) > helperGetShortestDistance(node) + helperGetDistance(node, currentTarget)) {
+                distance.put(currentTarget, helperGetShortestDistance(node) + helperGetDistance(node, currentTarget));
+                predecessors.put(currentTarget, node);
+                unSettled.add(currentTarget);
+            }
+        }
+    }
 
-        int lastIndex = 0;
-        //Reads station names from array of lines
-        for (int i=1; lines[i].compareTo("$") != 0; i++){
+    private List<Station> helperGetNeighbors(Station node){
+        List<Station> neighbors = new ArrayList<Station>();
+        for (Route current : this.edges) {
+            if (current.getSource().equals(node) && !helperIsSettled(current.getDestination())) {
+                neighbors.add(current.getDestination());
+            }
+        }
+        return neighbors;
+    }
 
-            tmp = lines[i].split(" ");
+    private int helperGetDistance(Station node, Station target){
+        for (Route current : edges){
+            if (current.getSource().equals(node) && current.getDestination().equals(target)) {
+                return current.getWeight();
+            }
+        }
+        throw new RuntimeException("Can't find weight.");
+    }
 
-            int stationNumber = Integer.parseInt(tmp[0].replaceAll("[^0-9]+",""));
-            String stationName = tmp[1].trim();
+    private boolean helperIsSettled(Station node) {
+        return settled.contains(node);
+    }
 
-            this.addStation(new Station(stationName, stationNumber));
+    private Station helperGetMin(Set<Station> stationsSet){
+        Station min = null;
+        for (Station current: stationsSet) {
+            if (min == null){
+                min = current;
+            } else {
+                if (helperGetShortestDistance(current) < helperGetShortestDistance(min)){
+                    min = current;
+                }
+            }
+        }
+        return min;
+    }
 
-            lastIndex = i;
+    private int helperGetShortestDistance(Station destination){
+        Integer distanceTo = distance.get(destination);
+        if (distanceTo == null) {
+            return Integer.MAX_VALUE;
+        } else {
+            return distanceTo;
+        }
+    }
+
+
+    public static void main(String args[]){
+
+        ParisMetro test = new ParisMetro();
+
+        if (args.length == 2) {
+            System.out.println(test.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1])).toString());
+        } else if (args.length == 3) {
+            System.out.println(test.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2])).toString());
         }
 
-        for (int i=lastIndex+2; i<lines.length; i++){
 
-            tmp = lines[i].split(" ");
 
-            int stationA = Integer.parseInt(tmp[0].replaceAll("[^0-9]+",""));
-            int stationB = Integer.parseInt(tmp[1].replaceAll("[^0-9]+",""));
-            int weight = Integer.parseInt(tmp[2].replaceAll("[^0-9]+",""));
 
-            Station a = this.stations.get(stationA);
-            Station b = this.stations.get(stationB);
-
-            this.addRoute(a, b, weight);
-        }
     }
 
 }
