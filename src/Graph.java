@@ -7,8 +7,8 @@ import java.util.List;
 
 public class Graph {
 
-    private List<Station> stations;
-    private List<Route> routes;
+    final private List<Station> stations;
+    final private List<Route> routes;
     private int stationsSize;
     private int routesSize;
 
@@ -82,7 +82,7 @@ public class Graph {
             int realWeight;
 
             if (weight.compareTo("-1") == 0){
-                realWeight = 90;
+                realWeight = -1;
             } else {
                 realWeight = Integer.parseInt(weight.replaceAll("[^0-9]+",""));
             }
