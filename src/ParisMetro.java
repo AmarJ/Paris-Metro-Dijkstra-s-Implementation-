@@ -38,6 +38,16 @@ public class ParisMetro {
         return path;
     }
 
+    public int getMostEfficientTravelTime(LinkedList<Integer> path){
+        int totalTime = 0;
+
+        for (int i=0; i<path.size()-1; i++){
+            totalTime += helperGetDistance(nodes.get(path.get(i)), nodes.get(path.get(i+1)));
+        }
+
+        return totalTime;
+    }
+
     public LinkedList<Integer> findMostEfficientPath(int sourceNumber, int destinationNumber, int omitStation){
 
 
@@ -142,7 +152,9 @@ public class ParisMetro {
         ParisMetro test = new ParisMetro();
 
         if (args.length == 2) {
-            System.out.println(test.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1])).toString());
+            LinkedList<Integer> path = test.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+            System.out.println(path.toString());
+            System.out.println(test.getMostEfficientTravelTime(path));
         } else if (args.length == 3) {
             System.out.println(test.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2])).toString());
         }
