@@ -40,13 +40,13 @@ public class Graph {
 
     private void readMetro(String fileName){
 
-        List<String> list;
+        List<String> listOfLines;
         String[] lines = null;
 
         //metro file to array of lines
         try {
-            list = Files.readAllLines(Paths.get(fileName));
-            lines = list.toArray(new String[list.size()]);
+            listOfLines = Files.readAllLines(Paths.get(fileName));
+            lines = listOfLines.toArray(new String[listOfLines.size()]);
         } catch (FileNotFoundException e) {
             System.out.println("Unable to open file.");
         } catch (IOException e) {
