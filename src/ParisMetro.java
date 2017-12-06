@@ -11,7 +11,7 @@ public class ParisMetro {
     private static final int WALKING_TIME_CONST = 90;
 
     public ParisMetro(){
-        Graph graph = new Graph("../data/metro.txt");
+        Graph graph = new Graph("metro.txt");
 
         this.nodes = graph.getStations();
         this.edges = graph.getRoutes();
@@ -221,7 +221,7 @@ public class ParisMetro {
             for (Integer x : path){
                 System.out.print(x+" ");
             }
-            System.out.println("End of Test -------------------------");
+            System.out.println("\nEnd of Test -------------------------");
         } else if (args.length == 2) {
             System.out.println("Test---------------------------------");
             System.out.println("    Input:");
