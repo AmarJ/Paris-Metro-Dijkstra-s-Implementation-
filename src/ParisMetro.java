@@ -17,12 +17,12 @@ public class ParisMetro {
         this.edges = graph.getRoutes();
     }
 
-    public LinkedList<Integer> findMostEfficientPath(int sourceNumber){
+    public LinkedList<Integer> findLines(int sourceNumber){
 
-        //Implementation of BFS to find line corresponding to station source
+        //Implementation of BFS to find line corresponding to station passed through this method
 
         LinkedList<Integer> queue = new LinkedList<Integer>();
-        LinkedList<Integer> path = new LinkedList<Integer>();
+        LinkedList<Integer> line = new LinkedList<Integer>();
 
         boolean visited[] = new boolean[nodes.size()];
 
@@ -32,7 +32,7 @@ public class ParisMetro {
         while (queue.size() != 0){
             int currentSourceNumber = queue.poll();
             Station currentSource = nodes.get(currentSourceNumber);
-            path.add(currentSourceNumber);
+            line.add(currentSourceNumber);
 
             for (Route current : this.edges){
                 if (current.getSource().equals(currentSource) && current.getWeight() != -1){
@@ -44,7 +44,7 @@ public class ParisMetro {
             }
         }
 
-        return path;
+        return line;
     }
 
     public LinkedList<Integer> findMostEfficientPath(int sourceNumber, int destinationNumber){
@@ -73,6 +73,9 @@ public class ParisMetro {
     }
 
     public int getMostEfficientTravelTime(LinkedList<Integer> path){
+
+        //Returns the total time it takes to travel a given path
+
         int totalTime = 0;
 
         for (int i=0; i<path.size()-1; i++){
@@ -84,7 +87,7 @@ public class ParisMetro {
 
     public LinkedList<Integer> findMostEfficientPath(int sourceNumber, int destinationNumber, int omitStation){
 
-        LinkedList<Integer> stationsToRemove = findMostEfficientPath(omitStation);
+        LinkedList<Integer> stationsToRemove = findLines(omitStation);
         List<Station> nodesToRemove = new ArrayList<Station>();
         List<Route> routeToRemove = new ArrayList<Route>();
 
@@ -206,21 +209,48 @@ public class ParisMetro {
 
     public static void main(String args[]) {
 
-        ParisMetro test = new ParisMetro();
+        ParisMetro metro = new ParisMetro();
 
         if (args.length == 1){
-            LinkedList<Integer> path = test.findMostEfficientPath(Integer.parseInt(args[0]));
-            System.out.println(path.toString());
+            System.out.println("Test---------------------------------");
+            System.out.println("    Input:");
+            System.out.println("    N1 = "+args[0]);
+            System.out.println("    Output:");
+            System.out.print("    Line: ");
+            LinkedList<Integer> path = metro.findLines(Integer.parseInt(args[0]));
+            for (Integer x : path){
+                System.out.print(x+" ");
+            }
+            System.out.println("End of Test -------------------------");
         } else if (args.length == 2) {
-            LinkedList<Integer> path = test.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
-            System.out.println(path.toString());
-            System.out.println(test.getMostEfficientTravelTime(path));
+            System.out.println("Test---------------------------------");
+            System.out.println("    Input:");
+            System.out.println("    N1 = "+args[0]+" N2 = "+args[1]);
+            System.out.println("    Output:");
+            System.out.print("    Path: ");
+            LinkedList<Integer> path = metro.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+            for (Integer x : path){
+                System.out.print(x+" ");
+            }
+            System.out.println("\n    Time: "+metro.getMostEfficientTravelTime(path));
+            System.out.println("End of Test -------------------------");
         } else if (args.length == 3) {
-            System.out.println(test.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2])).toString());
+            System.out.println("Test---------------------------------");
+            System.out.println("    Input:");
+            System.out.println("    N1 = "+args[0]+" N2 = "+args[1]);
+            System.out.println("    Output:");
+            System.out.print("    Path: ");
+            LinkedList<Integer> path = metro.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+            for (Integer x : path){
+                System.out.print(x+" ");
+            }
+            System.out.println("\n    Time: "+metro.getMostEfficientTravelTime(path));
+            System.out.println("    N1 = "+args[0]+" N2 = "+args[1]+" N3 = "+args[2]);
+            System.out.println("    Output:");
+            System.out.print("    Path: ");
+            System.out.println(metro.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2])).toString());
+            System.out.println("End of Test -------------------------");
         }
-
-
-
 
     }
 
