@@ -15,10 +15,6 @@ public class Station {
         return stationName;
     }
 
-    public int hashCode(){
-        return this.stationNumber;
-    }
-
     public boolean equals(Object o){
         if (this == o){
             return true;
