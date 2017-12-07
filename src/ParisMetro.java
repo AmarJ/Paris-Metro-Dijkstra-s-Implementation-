@@ -8,11 +8,13 @@ public class ParisMetro {
     private Set<Station> unSettled;
     private Map<Station, Station> predecessors;
     private Map<Station, Integer> distance;
+    private HashSet<Integer> restricted;
     private static final int WALKING_TIME_CONST = 90;
 
     public ParisMetro(){
         Graph graph = new Graph("metro.txt");
 
+        //Populates the nodes and edges lists with the stations and routes from the Graph object
         this.nodes = graph.getStations();
         this.edges = graph.getRoutes();
     }
@@ -43,7 +45,6 @@ public class ParisMetro {
                 }
             }
         }
-
         return line;
     }
 
@@ -51,12 +52,26 @@ public class ParisMetro {
 
         //Most efficient path between source and destination nodes in metro graph
 
+        return findMostEfficientPath(sourceNumber, destinationNumber, Integer.MIN_VALUE);
+    }
+
+    public LinkedList<Integer> findMostEfficientPath(int sourceNumber, int destinationNumber, int omitStation){
+
+        //Most efficient path between source and destination nodes in metro graph not using the broken line
+
+        LinkedList<Integer> stationsToRemove = new LinkedList<Integer>();
+
+        //Reusing findLines to determine broken line from broken station
+        if (omitStation != Integer.MIN_VALUE){
+            stationsToRemove = findLines(omitStation);
+        }
+
         Station source = nodes.get(sourceNumber);
         Station destination = nodes.get(destinationNumber);
 
         LinkedList<Integer> path = new LinkedList<Integer>();
 
-        dijkstraAlgorithm(source);
+        dijkstraAlgorithm(source, stationsToRemove);
 
         Station current = destination;
 
@@ -85,51 +100,8 @@ public class ParisMetro {
         return totalTime;
     }
 
-    public LinkedList<Integer> findMostEfficientPath(int sourceNumber, int destinationNumber, int omitStation){
-
-        LinkedList<Integer> stationsToRemove = findLines(omitStation);
-        List<Station> nodesToRemove = new ArrayList<Station>();
-        List<Route> routeToRemove = new ArrayList<Route>();
-
-        for (Integer toRemove : stationsToRemove){
-            for (Route current : this.edges){
-                if (current.getSource().equals(nodes.get(toRemove)) && current.getWeight() != -1){
-                    routeToRemove.add(current);
-                    nodesToRemove.add(nodes.get(toRemove));
-                }
-            }
-        }
-
-        for (Station x : nodesToRemove){
-            System.out.print(x.getStationNumber()+" ");
-        }
-
-        nodes.removeAll(nodesToRemove);
-        System.out.println(nodes.contains(nodes.get(2)));
-        edges.removeAll(routeToRemove);
-
-        Station source = nodes.get(sourceNumber);
-        Station destination = nodes.get(destinationNumber);
-
-        LinkedList<Integer> path = new LinkedList<Integer>();
-
-        dijkstraAlgorithm(source);
-
-        Station current = destination;
-
-        if (predecessors.get(current) == null){
-            return null;
-        }
-        path.add(current.getStationNumber());
-        while (predecessors.get(current) != null){
-            current = predecessors.get(current);
-            path.add(current.getStationNumber());
-        }
-        Collections.reverse(path);
-        return path;
-    }
-
-    private void dijkstraAlgorithm(Station source){
+    private void dijkstraAlgorithm(Station source, LinkedList<Integer> omitedNodes){
+        restricted = new HashSet<>(omitedNodes);
         settled = new HashSet<Station>();
         unSettled = new HashSet<Station>();
         predecessors = new HashMap<Station, Station>();
@@ -138,21 +110,22 @@ public class ParisMetro {
         distance.put(source, 0);
         unSettled.add(source);
         while (unSettled.size() > 0){
-            Station node = helperGetMin(unSettled);
+            Station node = helperGetMin(unSettled, restricted);
             settled.add(node);
             unSettled.remove(node);
             helperFindMinDistance(node);
         }
-
     }
 
     private void helperFindMinDistance(Station node) {
         List<Station> adjNodes = helperGetNeighbors(node);
         for (Station currentTarget : adjNodes) {
-            if (helperGetShortestDistance(currentTarget) > helperGetShortestDistance(node) + helperGetDistance(node, currentTarget)) {
-                distance.put(currentTarget, helperGetShortestDistance(node) + helperGetDistance(node, currentTarget));
-                predecessors.put(currentTarget, node);
-                unSettled.add(currentTarget);
+            if (!restricted.contains(currentTarget.getStationNumber())) {
+                if (helperGetShortestDistance(currentTarget) > helperGetShortestDistance(node) + helperGetDistance(node, currentTarget)) {
+                    distance.put(currentTarget, helperGetShortestDistance(node) + helperGetDistance(node, currentTarget));
+                    predecessors.put(currentTarget, node);
+                    unSettled.add(currentTarget);
+                }
             }
         }
     }
@@ -183,7 +156,7 @@ public class ParisMetro {
         return settled.contains(node);
     }
 
-    private Station helperGetMin(Set<Station> stationsSet){
+    private Station helperGetMin(Set<Station> stationsSet, HashSet<Integer> omitedStations){
         Station min = null;
         for (Station current: stationsSet) {
             if (min == null){
@@ -206,11 +179,11 @@ public class ParisMetro {
         }
     }
 
-
     public static void main(String args[]) {
 
         ParisMetro metro = new ParisMetro();
 
+        //neatly formatted output for tests
         if (args.length == 1){
             System.out.println("Test---------------------------------");
             System.out.println("    Input:");
@@ -227,29 +200,33 @@ public class ParisMetro {
             System.out.println("    Input:");
             System.out.println("    N1 = "+args[0]+" N2 = "+args[1]);
             System.out.println("    Output:");
-            System.out.print("    Path: ");
             LinkedList<Integer> path = metro.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+            System.out.println("    Time: "+metro.getMostEfficientTravelTime(path));
+            System.out.print("    Path: ");
             for (Integer x : path){
                 System.out.print(x+" ");
             }
-            System.out.println("\n    Time: "+metro.getMostEfficientTravelTime(path));
-            System.out.println("End of Test -------------------------");
+            System.out.println("\nEnd of Test -------------------------");
         } else if (args.length == 3) {
             System.out.println("Test---------------------------------");
             System.out.println("    Input:");
             System.out.println("    N1 = "+args[0]+" N2 = "+args[1]);
             System.out.println("    Output:");
-            System.out.print("    Path: ");
             LinkedList<Integer> path = metro.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+            System.out.println("    Time: "+metro.getMostEfficientTravelTime(path));
+            System.out.print("    Path: ");
             for (Integer x : path){
                 System.out.print(x+" ");
             }
-            System.out.println("\n    Time: "+metro.getMostEfficientTravelTime(path));
-            System.out.println("    N1 = "+args[0]+" N2 = "+args[1]+" N3 = "+args[2]);
+            System.out.println("\n    N1 = "+args[0]+" N2 = "+args[1]+" N3 = "+args[2]);
             System.out.println("    Output:");
+            LinkedList<Integer> path2 = metro.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+            System.out.println("    Time: "+metro.getMostEfficientTravelTime(path));
             System.out.print("    Path: ");
-            System.out.println(metro.findMostEfficientPath(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2])).toString());
-            System.out.println("End of Test -------------------------");
+            for (Integer x : path2){
+                System.out.print(x+" ");
+            }
+            System.out.println("\nEnd of Test -------------------------");
         }
 
     }
